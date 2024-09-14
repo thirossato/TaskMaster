@@ -1,0 +1,151 @@
+﻿@page "/"
+@using TaskMaster.Models
+@using TaskMaster.Data
+@inject TaskMasterDbContext _dbContext
+
+<PageTitle>Tarefas</PageTitle>
+
+<h1>Tarefas</h1>
+
+Estas são suas tarefas cadastradas.
+
+@if (tasks == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <Accordion>
+        @if (tasks.Any(t => t.DueDate.Date == DateTime.Now.Date))
+        {
+            <AccordionItem Title="Vencendo Hoje">
+                <Content>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Descrição</th>
+                                <th>Status</th>
+                                <th>Prioridade</th>
+                                <th>Prazo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var task in tasks.Where(t => t.DueDate.Date == DateTime.Now.Date))
+                            {
+                                <tr>
+                                    <td>@task.Title</td>
+                                    <td>@task.Description</td>
+                                    <td>@task.Status</td>
+                                    <td>@task.Priority</td>
+                                    <td>@task.DueDate.ToShortDateString()</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </Content>
+            </AccordionItem>
+        }
+        @if (tasks.Any(t => t.DueDate.Date == DateTime.Now.AddDays(1).Date))
+        {
+            <AccordionItem Title="Vencendo Amanhã">
+                <Content>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Descrição</th>
+                                <th>Status</th>
+                                <th>Prioridade</th>
+                                <th>Prazo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var task in tasks.Where(t => t.DueDate.Date == DateTime.Now.AddDays(1).Date))
+                            {
+                                <tr>
+                                    <td>@task.Title</td>
+                                    <td>@task.Description</td>
+                                    <td>@task.Status</td>
+                                    <td>@task.Priority</td>
+                                    <td>@task.DueDate.ToShortDateString()</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </Content>
+            </AccordionItem>
+        }
+        @if (tasks.Any(t => t.DueDate.Date > DateTime.Now.AddDays(1).Date && t.DueDate.Date <= DateTime.Now.AddDays(7).Date))
+        {
+            <AccordionItem Title="Vencendo Esta Semana">
+                <Content>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Descrição</th>
+                                <th>Status</th>
+                                <th>Prioridade</th>
+                                <th>Prazo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var task in tasks.Where(t => t.DueDate.Date > DateTime.Now.AddDays(1).Date && t.DueDate.Date <= DateTime.Now.AddDays(7).Date))
+                            {
+                                <tr>
+                                    <td>@task.Title</td>
+                                    <td>@task.Description</td>
+                                    <td>@task.Status</td>
+                                    <td>@task.Priority</td>
+                                    <td>@task.DueDate.ToShortDateString()</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </Content>
+            </AccordionItem>
+        }
+        @if (tasks.Any(t => t.DueDate.Date > DateTime.Now.AddDays(7).Date))
+        {
+            <AccordionItem Title="Vencendo Futuramente">
+                <Content>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Descrição</th>
+                                <th>Status</th>
+                                <th>Prioridade</th>
+                                <th>Prazo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var task in tasks.Where(t => t.DueDate.Date > DateTime.Now.AddDays(7).Date))
+                            {
+                                <tr>
+                                    <td>@task.Title</td>
+                                    <td>@task.Description</td>
+                                    <td>@task.Status</td>
+                                    <td>@task.Priority</td>
+                                    <td>@task.DueDate.ToShortDateString()</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </Content>
+            </AccordionItem>
+        }
+    </Accordion>
+}
+
+@code {
+    private List<UserTask> tasks = new List<UserTask>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Delay(500);
+
+        tasks = _dbContext.UserTasks.ToList();
+    }
+}
