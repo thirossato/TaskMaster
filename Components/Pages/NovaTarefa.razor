@@ -1,0 +1,80 @@
+﻿@using TaskMaster.Data
+@using TaskMaster.Models
+@inject TaskMasterDbContext _dbContext
+
+<div class="d-grid gap-2 col-6 mx-auto mt-2">
+    <Button Color="ButtonColor.Primary" @onclick="OnShowModalClick">
+        <Icon Name="IconName.PlusCircleFill"></Icon> Nova tarefa
+    </Button>
+</div>
+<Modal @ref="modal" Title="Modal title">
+    <BodyTemplate>
+        <form @onsubmit="SaveTask">
+            <div class="mb-3">
+                <label for="title" class="form-label">Título</label>
+                <InputText @bind-Value="Model!.Title" required type="text" class="form-control" id="title" placeholder="Título da tarefa"></InputText>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Descrição</label>
+                <InputTextArea @bind-Value="Model!.Description" required class="form-control" id="description" rows="3" placeholder="Descrição da tarefa"></InputTextArea>
+            </div>
+            <div class="mb-3">
+                <label for="status" class="form-label">Status</label>
+                <InputSelect @bind-Value="Model!.Status" required class="form-select" id="status">
+                    <option selected>Selecione...</option>
+                    <option value="Pendente">Pendente</option>
+                    <option value="Em andamento">Em andamento</option>
+                    <option value="Concluída">Concluída</option>
+                </InputSelect>
+            </div>
+            <div class="mb-3">
+                <label for="priority" class="form-label">Prioridade</label>
+                <InputSelect @bind-Value="Model!.Priority" required class="form-select" id="priority">
+                    <option selected>Selecione...</option>
+                    <option value="Baixa">Baixa</option>
+                    <option value="Média">Média</option>
+                    <option value="Alta">Alta</option>
+                </InputSelect>
+            </div>
+            <div class="mb-3">
+                <label for="dueDate" class="form-label">Prazo</label>
+                <InputDate @bind-Value="Model!.DueDate" required class="form-control" id="dueDate"></InputDate>
+            </div>
+            <Button Color="ButtonColor.Secondary" @onclick="OnHideModalClick">Cancelar</Button>
+            <Button Color="ButtonColor.Primary" Type="ButtonType.Submit">Salvar</Button>
+        </form>
+    </BodyTemplate>
+</Modal>
+
+@code {
+    [SupplyParameterFromForm]
+    private UserTask? Model { get; set; }
+
+    [Parameter] public EventCallback OnSave { get; set; }
+
+    protected override void OnInitialized() => Model ??= new();
+
+
+    private Modal modal;
+    private async Task OnShowModalClick()
+    {
+        await modal?.ShowAsync();
+    }
+
+    private async Task OnHideModalClick()
+    {
+        await modal?.HideAsync();
+    }
+
+    private async Task SaveTask()
+    {
+        if (Model != null)
+        {
+            await _dbContext.AddAsync<UserTask>(Model);
+            await _dbContext.SaveChangesAsync();
+        }
+        await OnSave.InvokeAsync(null);
+        Model = new();
+        await modal?.HideAsync();
+    }
+}
